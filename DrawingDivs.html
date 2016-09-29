@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <title>Drawing Divs</title>
+        <link rel="stylesheet" type="text/css" href="css/style.css">
+        <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+    </head>
+    <body>
+        <script type="text/javascript">
+            var data = [25, 7, 5, 26, 11, 8, 25, 14, 23];
+            d3.select("body")
+                .selectAll("div")
+                .data(data)
+                .enter()
+                .append("div")
+                .attr("class", "bar") //setting HTML attribute
+                .style("margin-right", "2px") //setting CSS property
+                .style("height", function(d) {
+                    return d*10 + "px";
+                }); //overriding CSS property dynamically
+        </script>
+    </body>
+</html>   
