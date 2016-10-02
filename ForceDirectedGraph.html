@@ -48,8 +48,8 @@
                   .on("tick", ticked);
 
               simulation
-                  .links(graph.links)
-                  .force("link", d3.forceLink().id(function(d) { return d.id; }));
+                  .force("link", d3.forceLink().id(function(d) { return d.id; }))
+                  .links(graph.links);
 
               function ticked() {
                 link
