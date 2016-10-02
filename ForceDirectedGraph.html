@@ -4,6 +4,17 @@
         <meta charset="utf-8">
         <title>Force Directed Graph</title>
         <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
+        <style>
+
+        .links line {
+          stroke: #aaa;
+        }
+
+        .nodes circle {
+          pointer-events: all;
+          stroke: none;
+          stroke-width: 40px;
+        }
     </head>
     <body>
         <svg width="960" height="600"></svg>
@@ -19,11 +30,13 @@
               if (error) throw error;
 
               var link = svg.append("g")
+                .attr("class", "links")
                 .selectAll("line")
                 .data(graph.links)
                 .enter().append("line");
 
               var node = svg.append("g")
+                .attr("class", "nodes")
                 .selectAll("circle")
                 .data(graph.nodes)
                 .enter().append("circle")
@@ -35,8 +48,8 @@
                   .on("tick", ticked);
 
               simulation
-                  .force("link", d3.forceLink().id(function(d) { return d.id; }))
-                  .links(graph.links);
+                  .links(graph.links)
+                  .force("link", d3.forceLink().id(function(d) { return d.id; }));
 
               function ticked() {
                 link
