@@ -13,7 +13,7 @@
             width = +svg.attr("width"),
             height = +svg.attr("height");
 
-            var simulation = d3.forceSimulation();
+            var simulation = d3.forceSimulation().force("link", d3.forceLink().id(function(d) { return d.id; }));
             
             d3.json("friends.json", function(error, graph) {
               if (error) throw error;
@@ -35,6 +35,7 @@
                   .on("tick", ticked);
 
               simulation
+                  .force("link")
                   .links(graph.links);
 
               function ticked() {
