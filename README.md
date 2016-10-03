@@ -18,13 +18,13 @@ Simple D3 practice codes
 
 * Each node must be an object. The following properties are assigned by the simulation:
   > index - the node’s zero-based index into nodes
-  > x - the node’s current x-position
-  > y - the node’s current y-position
-  > vx - the node’s current x-velocity
+  > x - the node’s current x-position,
+  > y - the node’s current y-position,
+  > vx - the node’s current x-velocity,
   > vy - the node’s current y-velocity
 
 * To fix a node in a given position, you may specify two additional properties:
-  > fx - the node’s fixed x-position
+  > fx - the node’s fixed x-position,
   > fy - the node’s fixed y-position
 
 * At the end of each tick, after the application of any forces, a node with a defined node.fx has node.x reset to this value and node.vx set to zero; likewise, a node with a defined node.fy has node.y reset to this value and node.vy set to zero. To unfix a node that was previously fixed, set node.fx and node.fy to null, or delete these properties.
