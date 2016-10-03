@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Force Directed Graph</title>
+        <title>Force Directed Graph (Not Draggable)</title>
         <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
         <style>
             .links line {
@@ -10,7 +10,6 @@
             }
 
             .nodes circle {
-              pointer-events: all;
               stroke: none;
               stroke-width: 40px;
             }
@@ -20,15 +19,26 @@
         <svg width="960" height="600"></svg>
 
         <script type="text/javascript">
+
             var svg = d3.select("svg"),
             width = +svg.attr("width"),
             height = +svg.attr("height");
 
-            var simulation = d3.forceSimulation().force("link", d3.forceLink().id(function(d) { return d.id; }));
+            /*
+              - create a simulation for an array of nodes and compose the desired forces.
+              - The link force pushes linked nodes together or apart according to the desired link distance.
+              - The centering force translates nodes uniformly so that the mean position of all nodes is at the given position ⟨x,y⟩.
+              - The many-body (or n-body) force applies mutually amongst all nodes. It can be used to simulate gravity (attraction) if the strength is positive, or electrostatic charge (repulsion) if the strength is negative.
+            */
+            var simulation = d3.forceSimulation()
+              .force("link", d3.forceLink().id(function(d) { return d.id; }))
+              .force("charge", d3.forceManyBody())
+              .force("center", d3.forceCenter(width / 2, height / 2)); 
             
             d3.json("friends.json", function(error, graph) {
               if (error) throw error;
 
+              //enter phase
               var link = svg.append("g")
                 .attr("class", "links")
                 .selectAll("line")
@@ -39,31 +49,38 @@
                 .attr("class", "nodes")
                 .selectAll("circle")
                 .data(graph.nodes)
-                .enter().append("circle")
-                  .attr("r", 3);
+                .enter()
+                .append("circle")
+                .attr("r", 5);
 
-              
+              //update phase
+              node
+                .append("title")
+                .text(function(d) { return d.id; });
+
               simulation
-                  .nodes(graph.nodes)
-                  .on("tick", ticked);
+                .nodes(graph.nodes)
+                //tick event
+                .on("tick", function() {
+                  console.log("tick triggered");
 
-              simulation
-                  .force("link")
-                  .links(graph.links);
-
-              function ticked() {
-                link
+                  link
                     .attr("x1", function(d) { return d.source.x; })
                     .attr("y1", function(d) { return d.source.y; })
                     .attr("x2", function(d) { return d.target.x; })
                     .attr("y2", function(d) { return d.target.y; });
 
-                node
+                  node
                     .attr("cx", function(d) { return d.x; })
                     .attr("cy", function(d) { return d.y; });
-              }
+                });
 
-            });             
+              simulation
+                .force("link")
+                .links(graph.links);
+            });
+
+
         </script>
     </body>
 </html>   

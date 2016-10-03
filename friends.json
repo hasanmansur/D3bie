@@ -1,10 +1,20 @@
 {
     "nodes": [
-        {"id": "Myriel", "group": 1},
-        {"id": "Napoleon", "group": 1}
+        {"id": "hasan"},
+        {"id": "sharif"},
+        {"id": "bappi"},
+        {"id": "shahadat"},
+        {"id": "morshed"}
     ],
     "links": [
-        {"source": "Napoleon", "target": "Myriel", "value": 1}
+        {"source": "sharif", "target": "hasan"},
+        {"source": "sharif", "target": "bappi"},
+        {"source": "sharif", "target": "morshed"},
+        {"source": "shahadat", "target": "morshed"},
+        {"source": "shahadat", "target": "bappi"},
+        {"source": "morshed", "target": "hasan"},
+        {"source": "morshed", "target": "bappi"},
+        {"source": "bappi", "target": "hasan"}
     ]
 }
     
