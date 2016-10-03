@@ -2,7 +2,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <title>Force Directed Graph (Not Draggable)</title>
+        <title>Force Directed Graph (Draggable)</title>
         <script type="text/javascript" src="https://d3js.org/d3.v4.min.js"></script>
         <style>
             .links line {
@@ -55,15 +55,18 @@
                 //drag event listeners
                 .call(d3.drag()
                   .on("start", function(d) {
+                    console.log("start triggered");
                     if (!d3.event.active) simulation.alphaTarget(0.3).restart();
                     d.fx = d.x;
                     d.fy = d.y;
                   })
                   .on("drag", function(d) {
+                    console.log("drag triggered");
                     d.fx = d3.event.x;
                     d.fy = d3.event.y;
                   })
                   .on("end", function dragended(d) {
+                    console.log("end triggered");
                     if (!d3.event.active) simulation.alphaTarget(0);
                     d.fx = null;
                     d.fy = null;
