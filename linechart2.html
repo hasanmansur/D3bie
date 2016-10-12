@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
 <body>
-<script src="js/d3.v3.min.js"></script>
+<script src="js/d3.v4.min.js"></script>
 <script>
 
 //margin
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 2060,
-    height = 500;
+    width = 10060 - margin.left - margin.right,
+    height = 500 - margin.top - margin.bottom;
 
 //date formatting
 var dayOne = "01";
@@ -25,22 +25,15 @@ var monthIndex = {
 	November: "10",
 	December: "11"
 }
-var formatDate = d3.time.format("%Y-%m-%d");
+var parseTime = d3.timeParse("%Y-%m-%d");
 
 //scale & axis
-var x = d3.time.scale()
-    .range([0, width]);
+var x = d3.scaleTime().range([0, width]),
+    y = d3.scaleLinear().range([height, 0]);
 
-var y = d3.scale.linear()
-    .range([height, 0]);
 
-var xAxis = d3.svg.axis()
-    .scale(x)
-    .orient("bottom").ticks(20);
-
-var yAxis = d3.svg.axis()
-    .scale(y)
-    .orient("left").ticks(3);
+var xAxis = d3.axisBottom(x).ticks(90);
+var yAxis = d3.axisLeft(y);
 
 //SVG
 var svg = d3.select("body").append("svg")
@@ -56,10 +49,10 @@ d3.csv("final_data.csv", type, function(error, data) {
 
   	x.domain(d3.extent(data, function(d) { return d.date; }));
   	y.domain(d3.extent(data, function(d) { return d.unemployment_rate; }));
-
+    //console.log(x.domain());
   	// Add the X Axis
-	svg.append("g")
-    	.attr("transform", "translate(0," + height + ")")
+    svg.append("g")
+      .attr("transform", "translate(0," + height + ")")
     	.call(xAxis);
 
     // Add the Y Axis
@@ -69,7 +62,7 @@ d3.csv("final_data.csv", type, function(error, data) {
 });
 
 function type(d, i) {
-  d.date = formatDate.parse(d.year + "-" + monthIndex[d.month] + "-" + dayOne);
+  d.date = parseTime(d.year + "-" + monthIndex[d.month] + "-" + dayOne);
   //console.log(d.date);
   return d;
 }
