@@ -12,6 +12,7 @@ Simple D3 practice codes
 - [Scatterplot](https://hasanmansur.github.io/D3bie/Scatterplot.html)
 - [ForceDirectedGraph(NonDraggable)](https://hasanmansur.github.io/D3bie/ForceDirectedGraphNonDraggable.html)
 - [ForceDirectedGraph(Draggable)](https://hasanmansur.github.io/D3bie/ForceDirectedGraphDraggable.html)
+- [LineChart](https://hasanmansur.github.io/D3bie/linechart.html)
 
 # Some Notes on Force Directed Graph
 
