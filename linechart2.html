@@ -1,13 +1,26 @@
 <!DOCTYPE html>
 <meta charset="utf-8">
+<style>
+
+.axis--x path {
+  display: none;
+}
+
+.line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 1.5px;
+}
+
+</style>
 <body>
 <script src="js/d3.v4.min.js"></script>
 <script>
 
 //margin
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 10060 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
+    width =2060 - margin.left - margin.right,
+    height = 960;
 
 //date formatting
 var dayOne = "01";
@@ -31,9 +44,14 @@ var parseTime = d3.timeParse("%Y-%m-%d");
 var x = d3.scaleTime().range([0, width]),
     y = d3.scaleLinear().range([height, 0]);
 
-
-var xAxis = d3.axisBottom(x).ticks(90);
+var xAxis = d3.axisBottom(x).ticks(40);
 var yAxis = d3.axisLeft(y);
+
+//line
+var line = d3.line()
+    .curve(d3.curveBasis)
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.unemployment_rate); });
 
 //SVG
 var svg = d3.select("body").append("svg")
@@ -45,11 +63,33 @@ var svg = d3.select("body").append("svg")
 //get data
 d3.csv("final_data.csv", type, function(error, data) {
 	if (error) throw error;
-  	//console.log(data);
+
+    var states = [];
+    data.forEach(function(d) {
+      var item = states.find(function(x) {
+        return x.id === d.states;
+      });
+      if(item) {
+        item.values.push({ date: d.date, unemployment_rate: d.unemployment_rate });
+      }
+      else {
+        states.push({ 
+        id: d.states, 
+        values: [ 
+          { date: d.date, unemployment_rate: d.unemployment_rate } 
+        ]});
+      } 
+    });
+    //console.log(states);
 
   	x.domain(d3.extent(data, function(d) { return d.date; }));
-  	y.domain(d3.extent(data, function(d) { return d.unemployment_rate; }));
-    //console.log(x.domain());
+  	//y.domain(d3.extent(data, function(d) { return d.unemployment_rate; }));
+    y.domain([
+      d3.min(states, function(c) { return d3.min(c.values, function(d) { return d.unemployment_rate; }); }),
+      d3.max(states, function(c) { return d3.max(c.values, function(d) { return d.unemployment_rate; }); })
+    ]);
+    console.log(y.domain());
+
   	// Add the X Axis
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
@@ -58,12 +98,20 @@ d3.csv("final_data.csv", type, function(error, data) {
     // Add the Y Axis
     svg.append("g")
         .call(yAxis);
+
+    var state = svg.selectAll(".state")
+      .data(states)
+      .enter().append("g")
+      .attr("class", "state");
+
+    state.append("path")
+      .attr("class", "line")
+      .attr("d", function(d) { return line(d.values); });
   
 });
 
 function type(d, i) {
   d.date = parseTime(d.year + "-" + monthIndex[d.month] + "-" + dayOne);
-  //console.log(d.date);
   return d;
 }
 
