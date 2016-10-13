@@ -19,7 +19,7 @@
 
 //margin
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width =2060 - margin.left - margin.right,
+    width =960,
     height = 960;
 
 //date formatting
@@ -42,9 +42,10 @@ var parseTime = d3.timeParse("%Y-%m-%d");
 
 //scale & axis
 var x = d3.scaleTime().range([0, width]),
-    y = d3.scaleLinear().range([height, 0]);
+    y = d3.scaleLinear().range([height, 0])
+    z = d3.scaleOrdinal(d3.schemeCategory10);
 
-var xAxis = d3.axisBottom(x).ticks(40);
+var xAxis = d3.axisBottom(x);
 var yAxis = d3.axisLeft(y);
 
 //line
@@ -88,7 +89,10 @@ d3.csv("final_data.csv", type, function(error, data) {
       d3.min(states, function(c) { return d3.min(c.values, function(d) { return d.unemployment_rate; }); }),
       d3.max(states, function(c) { return d3.max(c.values, function(d) { return d.unemployment_rate; }); })
     ]);
-    console.log(y.domain());
+
+    z.domain(states.map(function(c) { return c.id; }));
+    console.log(z.range());
+    console.log(z.domain());
 
   	// Add the X Axis
     svg.append("g")
@@ -104,9 +108,20 @@ d3.csv("final_data.csv", type, function(error, data) {
       .enter().append("g")
       .attr("class", "state");
 
+    // path
     state.append("path")
       .attr("class", "line")
-      .attr("d", function(d) { return line(d.values); });
+      .attr("d", function(d) { return line(d.values); })
+      .style("stroke", function(d) { return z(d.id); });
+
+    // path text info
+    state.append("text")
+      .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
+      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.unemployment_rate) + ")"; })
+      .attr("x", 3)
+      .attr("dy", "0.35em")
+      .style("font", "10px sans-serif")
+      .text(function(d) { return d.id; });
   
 });
 
