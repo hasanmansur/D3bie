@@ -2,14 +2,18 @@
 <meta charset="utf-8">
 <style>
 
-.axis--x path {
-  display: none;
-}
-
 .line {
   fill: none;
   stroke: steelblue;
   stroke-width: 1.5px;
+}
+
+.path {
+  display: none;
+}
+
+.pathshow {
+  display: unset;
 }
 
 </style>
@@ -110,7 +114,11 @@ d3.csv("final_data.csv", type, function(error, data) {
 
     // path
     state.append("path")
+      .attr("id", function(d) {
+        return d.id;
+      })
       .attr("class", "line")
+      .attr("class", "path")
       .attr("d", function(d) { return line(d.values); })
       .style("stroke", function(d) { return z(d.id); });
 
@@ -122,6 +130,24 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("dy", "0.35em")
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; });
+
+    //checkbox
+    var checkboxdata = z.domain();
+    d3.select("body")
+        .append("div")
+        .attr("id", "#checkboxarea")
+        .selectAll("input")
+        .data(checkboxdata)
+        .enter()
+        .append('input')
+        .attr('type','checkbox')
+        .attr("value", function(d, i) {
+          return d;
+        })
+        .on("change", function(d) {
+          console.log(d + " changed");
+          d3.select("#" + d).style("display","unset");
+        });
   
 });
 
@@ -130,4 +156,7 @@ function type(d, i) {
   return d;
 }
 
+
+
 </script>
+</body>
