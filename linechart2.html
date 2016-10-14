@@ -12,8 +12,8 @@
   display: none;
 }
 
-.pathshow {
-  display: unset;
+.pathopacity {
+  opacity: 0;
 }
 
 </style>
@@ -118,36 +118,63 @@ d3.csv("final_data.csv", type, function(error, data) {
         return d.id;
       })
       .attr("class", "line")
-      .attr("class", "path")
       .attr("d", function(d) { return line(d.values); })
-      .style("stroke", function(d) { return z(d.id); });
+      .style("stroke", function(d) { return z(d.id); })
+      .style("opacity", "0");
 
     // path text info
     state.append("text")
       .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
       .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.unemployment_rate) + ")"; })
+      .attr("id", function(d) {
+          return "pathText_" + d.id;
+        })
       .attr("x", 3)
       .attr("dy", "0.35em")
       .style("font", "10px sans-serif")
-      .text(function(d) { return d.id; });
+      .text(function(d) { return d.id; })
+      .style("opacity", "0");
 
     //checkbox
     var checkboxdata = z.domain();
-    d3.select("body")
+    var checkboxArea = d3.select("body")
         .append("div")
-        .attr("id", "#checkboxarea")
-        .selectAll("input")
+        .attr("id", "#checkboxarea");
+
+    checkboxArea
+        .selectAll("label")
         .data(checkboxdata)
         .enter()
-        .append('input')
-        .attr('type','checkbox')
-        .attr("value", function(d, i) {
+        .append("label")
+        .text(function(d) {
+          return d;
+        })
+        .attr("for", function(d) {
+          return "checkbox_" + d;
+        })
+        .style('float', 'left')
+        .append("input")
+        .attr("type","checkbox")
+        .attr("id", function(d) {
+          return "checkbox_" + d;
+        })
+        .attr("value", function(d) {
           return d;
         })
         .on("change", function(d) {
-          console.log(d + " changed");
-          d3.select("#" + d).style("display","unset");
+          var pathId = "#" + d;
+          var checkboxId = "#" + "checkbox_" + d;
+          var pathTextId = "#" + "pathText_" + d;
+          if(d3.select(checkboxId).property("checked")) {
+            d3.select(pathId).style("opacity","1");
+            d3.select(pathTextId).style("opacity","1");
+          }
+          else {
+            d3.select(pathId).style("opacity","0");
+            d3.select(pathTextId).style("opacity","0");
+          }   
         });
+
   
 });
 
