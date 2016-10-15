@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+</style>
+<body>
+<script src="js/d3.v4.min.js"></script>
+<script>
+
+var margin = {top: 20, right: 20, bottom: 30, left: 50},
+    width =1960,
+    height =1960;
+
+//SVG
+var svg = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+d3.json("us.geojson", function(data) {
+  var group = svg.selectAll("g")
+      .data(data.features)
+      .enter()
+      .append("g");
+
+  var projection = d3.geoMercator().scale(800).translate([width, height]);
+  var path = d3.geoPath().projection(projection);
+
+  group.append("path")
+    .attr("d", path)
+    .attr("fill", "steelblue")
+    .on("click", function(d) {
+      console.log(d.properties.name + " state clicked");
+    });
+
+  group.append("text")
+    .attr("x", function(d) {
+      return path.centroid(d)[0];
+    })
+    .attr("y", function(d) {
+      return path.centroid(d)[1];
+    }) 
+    .text(function(d) {
+      return d.properties.name;
+    })
+});
+
+</script>
+</body>
