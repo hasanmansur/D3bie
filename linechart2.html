@@ -24,7 +24,9 @@
 //margin
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
     width =960,
-    height = 960;
+    height = 500;
+
+//*********************************LINE CHART******************************************************
 
 //date formatting
 var dayOne = "01";
@@ -120,7 +122,8 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("class", "line")
       .attr("d", function(d) { return line(d.values); })
       .style("stroke", function(d) { return z(d.id); })
-      .style("opacity", "0");
+      .style("opacity", "0")
+      .on("mouseover", onMouseOverLine);
 
     // path text info
     state.append("text")
@@ -161,21 +164,7 @@ d3.csv("final_data.csv", type, function(error, data) {
         .attr("value", function(d) {
           return d;
         })
-        .on("change", function(d) {
-          var pathId = "#" + d;
-          var checkboxId = "#" + "checkbox_" + d;
-          var pathTextId = "#" + "pathText_" + d;
-          if(d3.select(checkboxId).property("checked")) {
-            d3.select(pathId).style("opacity","1");
-            d3.select(pathTextId).style("opacity","1");
-          }
-          else {
-            d3.select(pathId).style("opacity","0");
-            d3.select(pathTextId).style("opacity","0");
-          }   
-        });
-
-  
+        .on("change", onChangeCheckBox);
 });
 
 function type(d, i) {
@@ -183,7 +172,94 @@ function type(d, i) {
   return d;
 }
 
+function onChangeCheckBox(d) {
+  var pathId = "#" + d;
+  var checkboxId = "#" + "checkbox_" + d;
+  var pathTextId = "#" + "pathText_" + d;
+  if(d3.select(checkboxId).property("checked")) {
+    d3.select(pathId).style("opacity","1");
+    d3.select(pathTextId).style("opacity","1");
+  }
+  else {
+    d3.select(pathId).style("opacity","0");
+    d3.select(pathTextId).style("opacity","0");
+  }   
+}
 
+function onMouseOverLine(d) {
+  var pathId = "#"+ d.id;
+  var pathOpacity = d3.select(pathId).style("opacity");
+  if(pathOpacity === "1") {
+    console.log(d.id + " state highlighted in map");
+  }
+  else {
+    console.log(d.id + " state not highlighted in map");
+  }
+}
+
+
+
+//*********************************MAP******************************************************
+
+var selectedStatesInMap = [];
+
+// SVG for map
+var svg1 = d3.select("body").append("svg")
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+    //.attr("transform", "translate(" + margin.left + "," + "100" + ")");
+
+// data binding
+d3.json("us.json", function(data) {
+  var group = svg1.selectAll("g")
+      .data(data.features)
+      .enter()
+      .append("g");
+
+// projection & path generator
+var projection = d3.geoAlbersUsa()
+  .scale(1100)
+  .translate([width/2, height/2]);
+var path = d3.geoPath().projection(projection);
+
+group.append("path")
+  .attr("d", path)
+  .attr("fill", "steelblue")
+  .on("click", onClickMap);
+
+group.append("text")
+  .attr("x", function(d) {
+    return path.centroid(d.geometry)[0];
+  })
+  .attr("y", function(d) {
+    return path.centroid(d)[1];
+  })
+  /*.attr("transform", function(d) {
+    return "translate(" + path.centroid(d) + ")"; 
+  })*/
+  .text(function(d) {
+    return d.properties.NAME;
+  })
+  .style("text-anchor", "middle");
+});
+
+function onClickMap(d) {
+  //console.log(d.properties.NAME + " state clicked");
+  var pathId = "#" + d.properties.NAME;
+  var pathTextId = "#" + "pathText_" + d.properties.NAME;
+  var index = selectedStatesInMap.indexOf(d.properties.NAME);
+  if(index > -1) {
+    d3.select(pathId).style("opacity","0");
+    d3.select(pathTextId).style("opacity","0");
+    selectedStatesInMap.splice(index, 1);
+  }
+  else {
+    d3.select(pathId).style("opacity","1");
+    d3.select(pathTextId).style("opacity","1");
+    selectedStatesInMap.push(d.properties.NAME);
+  }
+}
 
 </script>
 </body>

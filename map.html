@@ -17,37 +17,38 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
+
 d3.json("us.json", function(data) {
   var group = svg.selectAll("g")
       .data(data.features)
       .enter()
       .append("g");
 
-  var projection = d3.geoAlbersUsa()
-    .scale(1000)
-    .translate([width / 2, height / 2]);
-  var path = d3.geoPath().projection(projection);
+var projection = d3.geoAlbersUsa()
+  .scale(1000)
+  .translate([width / 2, height / 2]);
+var path = d3.geoPath().projection(projection);
 
-  group.append("path")
-    .attr("d", path)
-    .attr("fill", "steelblue")
-    .on("click", function(d) {
-      console.log(d.properties.NAME + " state clicked");
-    });
+group.append("path")
+  .attr("d", path)
+  .attr("fill", "steelblue")
+  .on("click", function(d) {
+    console.log(d.properties.NAME + " state clicked");
+  });
 
-  group.append("text")
-    .attr("x", function(d) {
-      return path.centroid(d.geometry)[0];
-    })
-    .attr("y", function(d) {
-      return path.centroid(d)[1];
-    })
-    /*.attr("transform", function(d) {
-      return "translate(" + path.centroid(d) + ")"; 
-    })*/
-    .text(function(d) {
-      return d.properties.NAME;
-    });
+group.append("text")
+  .attr("x", function(d) {
+    return path.centroid(d.geometry)[0];
+  })
+  .attr("y", function(d) {
+    return path.centroid(d)[1];
+  })
+  /*.attr("transform", function(d) {
+    return "translate(" + path.centroid(d) + ")"; 
+  })*/
+  .text(function(d) {
+    return d.properties.NAME;
+  });
 });
 
 </script>
