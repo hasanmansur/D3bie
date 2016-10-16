@@ -7,8 +7,8 @@
 <script>
 
 var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width =1960,
-    height =1960;
+    width =960,
+    height =500;
 
 //SVG
 var svg = d3.select("body").append("svg")
@@ -17,32 +17,37 @@ var svg = d3.select("body").append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("us.geojson", function(data) {
+d3.json("us.json", function(data) {
   var group = svg.selectAll("g")
       .data(data.features)
       .enter()
       .append("g");
 
-  var projection = d3.geoMercator().scale(800).translate([width, height]);
+  var projection = d3.geoAlbersUsa()
+    .scale(1000)
+    .translate([width / 2, height / 2]);
   var path = d3.geoPath().projection(projection);
 
   group.append("path")
     .attr("d", path)
     .attr("fill", "steelblue")
     .on("click", function(d) {
-      console.log(d.properties.name + " state clicked");
+      console.log(d.properties.NAME + " state clicked");
     });
 
   group.append("text")
     .attr("x", function(d) {
-      return path.centroid(d)[0];
+      return path.centroid(d.geometry)[0];
     })
     .attr("y", function(d) {
       return path.centroid(d)[1];
-    }) 
-    .text(function(d) {
-      return d.properties.name;
     })
+    /*.attr("transform", function(d) {
+      return "translate(" + path.centroid(d) + ")"; 
+    })*/
+    .text(function(d) {
+      return d.properties.NAME;
+    });
 });
 
 </script>
