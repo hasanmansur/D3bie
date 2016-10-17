@@ -45,7 +45,7 @@ div label input {
 .line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 3.5px;
+  stroke-width: 4.5px;
 }
 
 .highlight {
@@ -165,9 +165,8 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("class", "line")
       .attr("d", function(d) { return line(d.values); })
       .style("stroke", function(d) { return z(d.id); })
-      .style("opacity", "0")
-      .on("mouseover", onMouseOverLine)
-      .on("mouseout", onMouseOutLine);
+      .style("opacity", "0");
+
 
     // path text info
     state.append("text")
@@ -181,6 +180,32 @@ d3.csv("final_data.csv", type, function(error, data) {
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; })
       .style("opacity", "0");
+
+    // path circle
+    state.append("g")
+      .attr("class", function(d) {
+        return d.id.split(' ').join('_');
+      })
+      .attr("display", "none")
+      .selectAll("circle")
+      .data(function(d) {
+        return d.values;
+      })
+      .enter()
+      .append("circle")
+      .attr("stroke", "#000")
+      .attr("fill-opacity",1)
+      .attr("cx", function(d){
+        return x(d.date);
+      })
+      .attr("cy", function(d){
+        return y(d.unemployment_rate);
+      })
+      .attr("r", function(d){
+        return d.unemployment_rate;
+      })
+      .on("mouseover", onMouseOverCircle);
+      //.on("mouseout", onMouseOutLine);
 
     //checkbox
     var checkboxdata = z.domain();
@@ -237,13 +262,16 @@ function onChangeCheckBox(d) {
   var pathId = "#" + d.split(' ').join('_');
   var checkboxId = "#" + "checkbox_" + d.split(' ').join('_');
   var pathTextId = "#" + "pathText_" + d.split(' ').join('_');
+  var pathCircleClassId = "." + d.split(' ').join('_');
   if(d3.select(checkboxId).property("checked")) {
     d3.select(pathId).style("opacity","1");
     d3.select(pathTextId).style("opacity","1");
+    d3.selectAll(pathCircleClassId).attr("display","block");
   }
   else {
     d3.select(pathId).style("opacity","0");
     d3.select(pathTextId).style("opacity","0");
+    d3.selectAll(pathCircleClassId).attr("display","none");
   }   
 }
 
@@ -255,6 +283,18 @@ function onMouseOverLine(d) {
     d3.select(mapId).style("fill", "rebeccapurple");
     d3.select(pathId).style("cursor", "pointer");
   }
+}
+
+function onMouseOverCircle(d) {
+  console.log(d);
+  var pathCircleClassId = d3.select(this.parentNode).attr("class");
+  //var checkboxId = "#" + "checkbox_" + pathCircleClassId;
+  var mapId = "#" + "map_" + pathCircleClassId;
+  console.log(mapId);
+  //console.log(d3.select(checkboxId).property("checked"));
+  
+    d3.select(mapId).style("fill", "rebeccapurple");
+    //d3.select(pathId).style("cursor", "pointer");
 }
 
 function onMouseOutLine(d) {
