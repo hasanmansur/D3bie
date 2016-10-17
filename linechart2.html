@@ -5,7 +5,7 @@
 .line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 1.5px;
+  stroke-width: 3.5px;
 }
 
 .path {
@@ -117,7 +117,7 @@ d3.csv("final_data.csv", type, function(error, data) {
     // path
     state.append("path")
       .attr("id", function(d) {
-        return d.id;
+        return d.id.split(' ').join('_');
       })
       .attr("class", "line")
       .attr("d", function(d) { return line(d.values); })
@@ -130,7 +130,7 @@ d3.csv("final_data.csv", type, function(error, data) {
       .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
       .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.unemployment_rate) + ")"; })
       .attr("id", function(d) {
-          return "pathText_" + d.id;
+          return "pathText_" + d.id.split(' ').join('_');
         })
       .attr("x", 3)
       .attr("dy", "0.35em")
@@ -159,7 +159,7 @@ d3.csv("final_data.csv", type, function(error, data) {
         .append("input")
         .attr("type","checkbox")
         .attr("id", function(d) {
-          return "checkbox_" + d;
+          return "checkbox_" + d.split(' ').join('_');
         })
         .attr("value", function(d) {
           return d;
@@ -173,9 +173,9 @@ function type(d, i) {
 }
 
 function onChangeCheckBox(d) {
-  var pathId = "#" + d;
-  var checkboxId = "#" + "checkbox_" + d;
-  var pathTextId = "#" + "pathText_" + d;
+  var pathId = "#" + d.split(' ').join('_');
+  var checkboxId = "#" + "checkbox_" + d.split(' ').join('_');
+  var pathTextId = "#" + "pathText_" + d.split(' ').join('_');
   if(d3.select(checkboxId).property("checked")) {
     d3.select(pathId).style("opacity","1");
     d3.select(pathTextId).style("opacity","1");
@@ -187,14 +187,14 @@ function onChangeCheckBox(d) {
 }
 
 function onMouseOverLine(d) {
-  var pathId = "#"+ d.id;
+  var pathId = "#"+ d.id.split(' ').join('_');
   var pathOpacity = d3.select(pathId).style("opacity");
   if(pathOpacity === "1") {
     console.log(d.id + " state highlighted in map");
   }
-  else {
+  /*else {
     console.log(d.id + " state not highlighted in map");
-  }
+  }*/
 }
 
 
@@ -246,9 +246,9 @@ group.append("text")
 
 function onClickMap(d) {
   //console.log(d.properties.NAME + " state clicked");
-  var pathId = "#" + d.properties.NAME;
-  var pathTextId = "#" + "pathText_" + d.properties.NAME;
-  var index = selectedStatesInMap.indexOf(d.properties.NAME);
+  var pathId = "#" + d.properties.NAME.split(' ').join('_');
+  var pathTextId = "#" + "pathText_" + d.properties.NAME.split(' ').join('_');
+  var index = selectedStatesInMap.indexOf(d.properties.NAME.split(' ').join('_'));
   if(index > -1) {
     d3.select(pathId).style("opacity","0");
     d3.select(pathTextId).style("opacity","0");
@@ -257,9 +257,10 @@ function onClickMap(d) {
   else {
     d3.select(pathId).style("opacity","1");
     d3.select(pathTextId).style("opacity","1");
-    selectedStatesInMap.push(d.properties.NAME);
+    selectedStatesInMap.push(d.properties.NAME.split(' ').join('_'));
   }
 }
+
 
 </script>
 </body>
