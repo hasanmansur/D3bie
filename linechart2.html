@@ -14,6 +14,7 @@ body {
 
 div label {
   float: left;
+  clear: both;
   margin-bottom: 10px;
   margin-right: 10px;
 }
@@ -21,7 +22,9 @@ div label {
 div label input {
   margin: 5px;
 }
-
+#selectAll {
+  float: left;
+}
 #usmap {
   float: right;
   font-size: 13px;
@@ -38,7 +41,11 @@ div label input {
     overflow: hidden;
     overflow-y: scroll;
 }
-
+.selectAllCheckboxDiv {
+  float: left;
+  clear: both;
+  margin-bottom: 30px;
+}
 .line {
   fill: none;
   stroke: steelblue;
@@ -221,16 +228,18 @@ d3.csv("final_data.csv", type, function(error, data) {
         .append("div")
         .attr("id", "checkboxarea");
 
-    checkboxArea.append("input")
+    var checkboxAllArea = checkboxArea.append("div").attr("class", "selectAllCheckboxDiv");
+    checkboxAllArea.append("input")
         .attr("id", "selectAll")
         .attr("type", "checkbox")
         .on("change", onSelectAllCheckBox);
 
-    checkboxArea.append("label")
+    checkboxAllArea.append("label")
         .attr("for", "selectAll")
         .text("select all");
 
-    checkboxArea
+    var checkboxStateArea = checkboxArea.append("div").attr("class", "selectStateCheckboxDiv");
+    checkboxStateArea
         .selectAll("label")
         .data(checkboxdata)
         .enter()
@@ -262,8 +271,6 @@ function onSelectAllCheckBox() {
   console.log("select all event");
   checkboxes = document.getElementsByName('state');
   for(var i=0, n=checkboxes.length;i<n;i++) {
-    //checkboxes[i].checked = true;
-    //console.log(checkboxes[i].id);
     d3.select("#" + checkboxes[i].id).property("checked", true);
   }
 } 
