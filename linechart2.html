@@ -77,11 +77,12 @@ div label input {
 <script>
 
 //margin
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
+var margin = {top: 50, right: 20, bottom: 30, left: 50},
     width =960,
     height = 500;
 
 //*********************************LINE CHART******************************************************
+var checkboxdata;
 
 //date formatting
 var dayOne = "01";
@@ -119,8 +120,8 @@ var line = d3.line()
 var svg = d3.select("body").append("svg")
     //.attr("width", width + margin.left + margin.right)
     .attr("width", "100%")
-    //.attr("height", height + margin.top + margin.bottom)
-    .attr("height", "600")
+    .attr("height", height + margin.top + margin.bottom)
+    //.attr("height", "600")
   	.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -144,20 +145,17 @@ d3.csv("final_data.csv", type, function(error, data) {
         ]});
       } 
     });
-    //console.log(states);
 
   	x.domain(d3.extent(data, function(d) { return d.date; }));
-  	//y.domain(d3.extent(data, function(d) { return d.unemployment_rate; }));
-    y.domain([
+  	y.domain(d3.extent(data, function(d) { return parseFloat(d.unemployment_rate); }));
+    /*y.domain([
       d3.min(states, function(c) { return d3.min(c.values, function(d) { return d.unemployment_rate; }); }),
       d3.max(states, function(c) { return d3.max(c.values, function(d) { return d.unemployment_rate; }); })
-    ]);
+    ]);*/
 
     z.domain(states.map(function(c) { return c.id; }));
-    console.log(z.range());
-    console.log(z.domain());
-
-  	// Add the X Axis
+  	
+    // Add the X Axis
     svg.append("g")
       .attr("transform", "translate(0," + height + ")")
     	.call(xAxis);
@@ -189,9 +187,9 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("id", function(d) {
           return "pathText_" + d.id.split(' ').join('_');
         })
-      .attr("x", 3)
-      .attr("dy", "0.35em")
-      .style("font", "10px sans-serif")
+      //.attr("x", 3)
+      //.attr("dy", "0.35em")
+      .style("font", "14px sans-serif")
       .text(function(d) { return d.id; })
       .style("display", "none");
 
@@ -216,14 +214,14 @@ d3.csv("final_data.csv", type, function(error, data) {
         return y(d.unemployment_rate);
       })
       .attr("r", function(d){
-        return d.unemployment_rate;
+        return d.unemployment_rate/2;
       })
       .on("mouseover", onMouseOverCircle)
       .on("mouseout", onMouseOutCircle);
 
     //checkbox
-    var checkboxdata = z.domain();
-    console.log(checkboxdata);
+    checkboxdata = z.domain();
+    //console.log(checkboxdata);
     var checkboxArea = d3.select("body")
         .append("div")
         .attr("id", "checkboxarea");
@@ -232,7 +230,7 @@ d3.csv("final_data.csv", type, function(error, data) {
     checkboxAllArea.append("input")
         .attr("id", "selectAll")
         .attr("type", "checkbox")
-        .on("change", onSelectAllCheckBox);
+        .on("change", onChangeAllCheckBox);
 
     checkboxAllArea.append("label")
         .attr("for", "selectAll")
@@ -259,6 +257,7 @@ d3.csv("final_data.csv", type, function(error, data) {
           return d;
         })
         .attr("name", "state")
+        .attr("class", "testclass")
         .on("change", onChangeCheckBox);
 });
 
@@ -267,15 +266,22 @@ function type(d, i) {
   return d;
 }
 
-function onSelectAllCheckBox() {
-  console.log("select all event");
-  checkboxes = document.getElementsByName('state');
+function onChangeAllCheckBox() {
+  /*checkboxes = document.getElementsByName('state');
   for(var i=0, n=checkboxes.length;i<n;i++) {
-    d3.select("#" + checkboxes[i].id).property("checked", true);
-  }
-} 
+    var checkbox= d3.select("#" + checkboxes[i].id);
+    checkbox.property("checked", "true");
+    checkbox.on("change")(checkboxdata[i]);
+  }*/
+  d3.selectAll(".testclass")
+    .each(function(d) {
+      d3.select(this).property("checked", "true").on("change")(d);
+    })
+    
+}
 
 function onChangeCheckBox(d) {
+  //console.log(d);
   var checkboxId = "#" + "checkbox_" + d.split(' ').join('_');
   var pathId = "#" + d.split(' ').join('_');
   var pathTextId = "#" + "pathText_" + d.split(' ').join('_');
