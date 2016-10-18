@@ -45,7 +45,7 @@ div label input {
 .line {
   fill: none;
   stroke: steelblue;
-  stroke-width: 4.5px;
+  stroke-width: 1.5px;
 }
 
 .highlight {
@@ -105,8 +105,10 @@ var line = d3.line()
 
 //SVG
 var svg = d3.select("body").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
+    //.attr("width", width + margin.left + margin.right)
+    .attr("width", "100%")
+    //.attr("height", height + margin.top + margin.bottom)
+    .attr("height", "600")
   	.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -165,7 +167,8 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("class", "line")
       .attr("d", function(d) { return line(d.values); })
       .style("stroke", function(d) { return z(d.id); })
-      .style("opacity", "0");
+      //.style("opacity", "0")
+      .style("display", "none");
 
 
     // path text info
@@ -179,7 +182,8 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("dy", "0.35em")
       .style("font", "10px sans-serif")
       .text(function(d) { return d.id; })
-      .style("opacity", "0");
+      //.style("opacity", "0");
+      .style("display", "none");
 
     // path circle
     state.append("g")
@@ -194,7 +198,7 @@ d3.csv("final_data.csv", type, function(error, data) {
       .enter()
       .append("circle")
       .attr("stroke", "#000")
-      .attr("fill-opacity",1)
+      .attr("fill-opacity",0)
       .attr("cx", function(d){
         return x(d.date);
       })
@@ -204,23 +208,24 @@ d3.csv("final_data.csv", type, function(error, data) {
       .attr("r", function(d){
         return d.unemployment_rate;
       })
-      .on("mouseover", onMouseOverCircle);
-      //.on("mouseout", onMouseOutLine);
+      .on("mouseover", onMouseOverCircle)
+      .on("mouseout", onMouseOutCircle);
 
     //checkbox
     var checkboxdata = z.domain();
+    console.log(checkboxdata);
     var checkboxArea = d3.select("body")
         .append("div")
         .attr("id", "checkboxarea");
 
-    checkboxArea.append("input")
+    /*checkboxArea.append("input")
         .attr("id", "selectAll")
         .attr("type", "checkbox")
-        .on("change", onSelectAllCheckBox);
+        .on("change", onSelectAllCheckBox);*/
 
-    checkboxArea.append("label")
+    /*checkboxArea.append("label")
         .attr("for", "selectAll")
-        .text("select all");
+        .text("select all");*/
 
     checkboxArea
         .selectAll("label")
@@ -259,54 +264,40 @@ function onSelectAllCheckBox() {
 } 
 
 function onChangeCheckBox(d) {
-  var pathId = "#" + d.split(' ').join('_');
   var checkboxId = "#" + "checkbox_" + d.split(' ').join('_');
+  var pathId = "#" + d.split(' ').join('_');
   var pathTextId = "#" + "pathText_" + d.split(' ').join('_');
   var pathCircleClassId = "." + d.split(' ').join('_');
+  var mapId = "#" + "map_" + d.split(' ').join('_');
   if(d3.select(checkboxId).property("checked")) {
-    d3.select(pathId).style("opacity","1");
-    d3.select(pathTextId).style("opacity","1");
+    d3.select(pathId).style("display","block");
+    d3.select(pathTextId).style("display","block");
     d3.selectAll(pathCircleClassId).attr("display","block");
+    d3.select(mapId).style("stroke", "black").style("stroke-width", "2px");
   }
   else {
-    d3.select(pathId).style("opacity","0");
-    d3.select(pathTextId).style("opacity","0");
+    d3.select(pathId).style("display","none");
+    d3.select(pathTextId).style("display","none");
     d3.selectAll(pathCircleClassId).attr("display","none");
+    d3.select(mapId).style("stroke", "none");
   }   
 }
 
-function onMouseOverLine(d) {
-  var mapId = "#" + "map_" + d.id.split(' ').join('_');
-  var pathId = "#"+ d.id.split(' ').join('_');
-  var pathOpacity = d3.select(pathId).style("opacity");
-  if(pathOpacity === "1") {
-    d3.select(mapId).style("fill", "rebeccapurple");
-    d3.select(pathId).style("cursor", "pointer");
-  }
-}
-
 function onMouseOverCircle(d) {
-  console.log(d);
   var pathCircleClassId = d3.select(this.parentNode).attr("class");
-  //var checkboxId = "#" + "checkbox_" + pathCircleClassId;
   var mapId = "#" + "map_" + pathCircleClassId;
-  console.log(mapId);
-  //console.log(d3.select(checkboxId).property("checked"));
-  
-    d3.select(mapId).style("fill", "rebeccapurple");
-    //d3.select(pathId).style("cursor", "pointer");
+  d3.select(mapId).style("fill", "rebeccapurple");
+  d3.select(this).attr("fill-opacity",1);
+  d3.select(this).style("cursor", "pointer");
 }
 
-function onMouseOutLine(d) {
-  var mapId = "#" + "map_" + d.id.split(' ').join('_');
-  var pathId = "#"+ d.id.split(' ').join('_');
-  var pathOpacity = d3.select(pathId).style("opacity");
-  if(pathOpacity === "1") {
-    d3.select(mapId).style("fill", "steelblue");
-    d3.select(pathId).style("cursor", "none");
-  }
+function onMouseOutCircle(d) {
+  var pathCircleClassId = d3.select(this.parentNode).attr("class");
+  var mapId = "#" + "map_" + pathCircleClassId;
+  d3.select(mapId).style("fill", "steelblue"); 
+  d3.select(this).attr("fill-opacity",0);
+  d3.select(this).style("cursor", "none");
 }
-
 
 //*********************************MAP******************************************************
 
@@ -338,7 +329,8 @@ group.append("path")
   })
   .attr("d", path)
   .attr("fill", "steelblue")
-  .on("click", onClickMap);
+  .on("click", onClickMap)
+  .on("mouseover", onMouseOverMap);
 
 group.append("text")
   .attr("x", function(d) {
@@ -357,22 +349,53 @@ group.append("text")
 });
 
 function onClickMap(d) {
-  //console.log(d.properties.NAME + " state clicked");
+  var mapId = "#" + "map_" + d.properties.NAME.split(' ').join('_');
+  var checkboxId = "#" + d.properties.NAME.split(' ').join('_');
   var pathId = "#" + d.properties.NAME.split(' ').join('_');
   var pathTextId = "#" + "pathText_" + d.properties.NAME.split(' ').join('_');
-  var index = selectedStatesInMap.indexOf(d.properties.NAME.split(' ').join('_'));
-  if(index > -1) {
-    d3.select(pathId).style("opacity","0");
-    d3.select(pathTextId).style("opacity","0");
-    selectedStatesInMap.splice(index, 1);
+  var pathCircleClassId = "." + d.properties.NAME.split(' ').join('_');
+  if(d3.select(mapId).style("stroke") === "none") {
+    d3.select(pathId).style("display","block");
+    d3.select(pathTextId).style("display","block");
+    d3.selectAll(pathCircleClassId).attr("display","block");
+    //d3.select(checkboxId).attr("checked");
+    d3.select(mapId).style("stroke", "black").style("stroke-width", "2px");
   }
   else {
-    d3.select(pathId).style("opacity","1");
-    d3.select(pathTextId).style("opacity","1");
-    selectedStatesInMap.push(d.properties.NAME.split(' ').join('_'));
+    d3.select(pathId).style("display","none");
+    d3.select(pathTextId).style("display","none");
+    d3.selectAll(pathCircleClassId).attr("display","none");
+    //d3.select(checkboxId).attr("checked");
+    d3.select(mapId).style("stroke", "none");
   }
 }
 
+function onMouseOverMap(d) {
+  d3.select(this).style("cursor", "pointer");
+}
 
 </script>
 </body>
+
+
+
+
+<!-- function onMouseOverLine(d) {
+  var mapId = "#" + "map_" + d.id.split(' ').join('_');
+  var pathId = "#"+ d.id.split(' ').join('_');
+  var pathOpacity = d3.select(pathId).style("opacity");
+  if(pathOpacity === "1") {
+    d3.select(mapId).style("fill", "rebeccapurple");
+    d3.select(pathId).style("cursor", "pointer");
+  }
+}
+
+function onMouseOutLine(d) {
+  var mapId = "#" + "map_" + d.id.split(' ').join('_');
+  var pathId = "#"+ d.id.split(' ').join('_');
+  var pathOpacity = d3.select(pathId).style("opacity");
+  if(pathOpacity === "1") {
+    d3.select(mapId).style("fill", "steelblue");
+    d3.select(pathId).style("cursor", "none");
+  }
+} -->
