@@ -22,9 +22,7 @@ div label {
 div label input {
   margin: 5px;
 }
-#selectAll {
-  float: left;
-}
+
 #usmap {
   float: right;
   font-size: 13px;
@@ -40,11 +38,6 @@ div label input {
     height: 300px;
     overflow: hidden;
     overflow-y: scroll;
-}
-.selectAllCheckboxDiv {
-  float: left;
-  clear: both;
-  margin-bottom: 30px;
 }
 .line {
   fill: none;
@@ -68,8 +61,23 @@ div label input {
 }
 
 .hidden {
-        display: none;
-    }
+ display: none;
+}
+#selectAll {
+}
+.selectAllCheckboxDiv {
+    float: left;
+    clear: both;
+    background: #FFF;
+    border: 1px solid #DDD;
+    width: 70%;
+    padding: 10px 10px 0px;
+    margin-bottom: 12px;
+    margin-left: -10px;
+}
+.selectAllCheckboxDiv label {
+  float: left;
+}
 
 </style>
 <body>
@@ -152,7 +160,6 @@ d3.csv("final_data.csv", type, function(error, data) {
       d3.min(states, function(c) { return d3.min(c.values, function(d) { return d.unemployment_rate; }); }),
       d3.max(states, function(c) { return d3.max(c.values, function(d) { return d.unemployment_rate; }); })
     ]);*/
-
     z.domain(states.map(function(c) { return c.id; }));
   	
     // Add the X Axis
@@ -162,7 +169,14 @@ d3.csv("final_data.csv", type, function(error, data) {
 
     // Add the Y Axis
     svg.append("g")
-        .call(yAxis);
+        .call(yAxis)
+        .append("text")
+        .attr("fill", "#000")
+        .attr("transform", "rotate(-90)")
+        .attr("y", 6)
+        .attr("dy", "0.71em")
+        .style("text-anchor", "end")
+        .text("Unemployment(%)");
 
     var state = svg.selectAll(".state")
       .data(states)
@@ -183,7 +197,10 @@ d3.csv("final_data.csv", type, function(error, data) {
     // path text info
     state.append("text")
       .datum(function(d) { return {id: d.id, value: d.values[d.values.length - 1]}; })
-      .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.unemployment_rate) + ")"; })
+      .attr("transform", function(d) { 
+        var factor = x(d.value.date) + 10; 
+        return "translate(" + factor + "," + y(d.value.unemployment_rate) + ")"; 
+      })
       .attr("id", function(d) {
           return "pathText_" + d.id.split(' ').join('_');
         })
@@ -191,7 +208,8 @@ d3.csv("final_data.csv", type, function(error, data) {
       //.attr("dy", "0.35em")
       .style("font", "14px sans-serif")
       .text(function(d) { return d.id; })
-      .style("display", "none");
+      .style("display", "none")
+      .attr("class", "pathtext");
 
     // path circle
     state.append("g")
@@ -205,6 +223,7 @@ d3.csv("final_data.csv", type, function(error, data) {
       })
       .enter()
       .append("circle")
+      .attr("class", "pathcircle")
       .attr("stroke", "#000")
       .attr("fill-opacity",0)
       .attr("cx", function(d){
@@ -217,7 +236,12 @@ d3.csv("final_data.csv", type, function(error, data) {
         return d.unemployment_rate/2;
       })
       .on("mouseover", onMouseOverCircle)
-      .on("mouseout", onMouseOutCircle);
+      .on("mouseout", onMouseOutCircle)
+      .append("title")
+      .text(function(d) { 
+        var month = Object.keys(monthIndex)[d.date.getMonth()];
+        return "Unemployment Rate: " + d.unemployment_rate + ", " + "Month: " + month; 
+      });
 
     //checkbox
     checkboxdata = z.domain();
@@ -273,15 +297,20 @@ function onChangeAllCheckBox() {
     checkbox.property("checked", "true");
     checkbox.on("change")(checkboxdata[i]);
   }*/
+  var checked = false;
+  if(d3.select("#selectAll").property("checked")) {
+    checked = true;
+  }
+  else {
+    checked = false;
+  } 
   d3.selectAll(".testclass")
     .each(function(d) {
-      d3.select(this).property("checked", "true").on("change")(d);
-    })
-    
+      d3.select(this).property("checked", checked).on("change")(d);
+    })  
 }
 
 function onChangeCheckBox(d) {
-  //console.log(d);
   var checkboxId = "#" + "checkbox_" + d.split(' ').join('_');
   var pathId = "#" + d.split(' ').join('_');
   var pathTextId = "#" + "pathText_" + d.split(' ').join('_');
@@ -304,6 +333,10 @@ function onChangeCheckBox(d) {
 function onMouseOverCircle(d) {
   var pathCircleClassId = d3.select(this.parentNode).attr("class");
   var mapId = "#" + "map_" + pathCircleClassId;
+  var mapTextId = "#" + "maptext_" + pathCircleClassId;
+  d3.selectAll(".line").style("opacity", 0);
+  d3.selectAll(".pathtext").style("opacity", 0);
+  d3.selectAll(".pathcircle").style("opacity", 0);
   d3.select(mapId).style("fill", "rebeccapurple");
   d3.select(this).attr("fill-opacity",1);
   d3.select(this).style("cursor", "pointer");
@@ -312,14 +345,16 @@ function onMouseOverCircle(d) {
 function onMouseOutCircle(d) {
   var pathCircleClassId = d3.select(this.parentNode).attr("class");
   var mapId = "#" + "map_" + pathCircleClassId;
-  d3.select(mapId).style("fill", "steelblue"); 
+  var mapTextId = "#" + "maptext_" + pathCircleClassId;
+  d3.selectAll(".line").style("opacity", 1);
+  d3.selectAll(".pathtext").style("opacity", 1);
+  d3.selectAll(".pathcircle").style("opacity", 1);
+  d3.select(mapId).style("fill", "steelblue");
   d3.select(this).attr("fill-opacity",0);
   d3.select(this).style("cursor", "none");
 }
 
 //*********************************MAP******************************************************
-
-var selectedStatesInMap = [];
 
 // SVG for map
 var svg1 = d3.select("body").append("svg")
@@ -366,10 +401,13 @@ group.append("text")
     return "translate(" + path.centroid(d) + ")"; 
   })*/
   .text(function(d) {
-    return d.properties.NAME;
+    return d.properties.POSTCODE;
   })
-  .style("text-anchor", "middle")
-  .style("display", "none");
+  .attr("id", function(d) {
+    return "maptext_" + d.properties.NAME.split(' ').join('_')
+  })
+  .style("text-anchor", "middle");
+  //.style("display", "none");
 });
 
 function onClickMap(d) {
