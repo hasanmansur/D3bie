@@ -129,7 +129,6 @@ var svg = d3.select("body").append("svg")
     //.attr("width", width + margin.left + margin.right)
     .attr("width", "100%")
     .attr("height", height + margin.top + margin.bottom)
-    //.attr("height", "600")
   	.append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
@@ -156,10 +155,6 @@ d3.csv("final_data.csv", type, function(error, data) {
 
   	x.domain(d3.extent(data, function(d) { return d.date; }));
   	y.domain(d3.extent(data, function(d) { return parseFloat(d.unemployment_rate); }));
-    /*y.domain([
-      d3.min(states, function(c) { return d3.min(c.values, function(d) { return d.unemployment_rate; }); }),
-      d3.max(states, function(c) { return d3.max(c.values, function(d) { return d.unemployment_rate; }); })
-    ]);*/
     z.domain(states.map(function(c) { return c.id; }));
   	
     // Add the X Axis
@@ -240,7 +235,8 @@ d3.csv("final_data.csv", type, function(error, data) {
       .append("title")
       .text(function(d) { 
         var month = Object.keys(monthIndex)[d.date.getMonth()];
-        return "Unemployment Rate: " + d.unemployment_rate + ", " + "Month: " + month; 
+        var year = d.date.getFullYear();
+        return "Unemployment Rate: " + d.unemployment_rate + "(" + month + "," + year + ")"; 
       });
 
     //checkbox
@@ -334,24 +330,21 @@ function onMouseOverCircle(d) {
   var pathCircleClassId = d3.select(this.parentNode).attr("class");
   var mapId = "#" + "map_" + pathCircleClassId;
   var mapTextId = "#" + "maptext_" + pathCircleClassId;
-  d3.selectAll(".line").style("opacity", 0);
-  d3.selectAll(".pathtext").style("opacity", 0);
-  d3.selectAll(".pathcircle").style("opacity", 0);
   d3.select(mapId).style("fill", "rebeccapurple");
   d3.select(this).attr("fill-opacity",1);
   d3.select(this).style("cursor", "pointer");
+  d3.selectAll(".pathtext").style("opacity", 0);
+  d3.select("#" + "pathText_"+ pathCircleClassId).style("opacity", 1);
 }
 
 function onMouseOutCircle(d) {
   var pathCircleClassId = d3.select(this.parentNode).attr("class");
   var mapId = "#" + "map_" + pathCircleClassId;
   var mapTextId = "#" + "maptext_" + pathCircleClassId;
-  d3.selectAll(".line").style("opacity", 1);
-  d3.selectAll(".pathtext").style("opacity", 1);
-  d3.selectAll(".pathcircle").style("opacity", 1);
   d3.select(mapId).style("fill", "steelblue");
   d3.select(this).attr("fill-opacity",0);
   d3.select(this).style("cursor", "none");
+  d3.selectAll(".pathtext").style("opacity", 1);
 }
 
 //*********************************MAP******************************************************
@@ -436,21 +429,21 @@ function onMouseOverMap(d) {
   d3.select(this).style("cursor", "pointer");
   var mapId = "#" + "map_" + d.properties.NAME.split(' ').join('_');
   d3.select(mapId).style("fill", "rebeccapurple");
-  var mouse = d3.mouse(svg1.node()).map(function(d) {
+  /*var mouse = d3.mouse(svg1.node()).map(function(d) {
         return parseInt(d);
     });
   tooltip
     .classed('hidden', false)
     .attr('style', 'left:' + (mouse[0] + 200) +'px; top:' + (mouse[1] + 620) + 'px')
-    .html(d.properties.NAME);
+    .html(d.properties.NAME);*/
 }
 
 function onMouseOutMap(d) {
   d3.select(this).style("cursor", "none");
   var mapId = "#" + "map_" + d.properties.NAME.split(' ').join('_');
   d3.select(mapId).style("fill", "steelblue");
-  tooltip.classed('hidden', true);
-  tooltip.style("display", "none");
+  /*tooltip.classed('hidden', true);
+  tooltip.style("display", "none");*/
 }
 
 </script>
